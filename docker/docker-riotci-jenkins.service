@@ -1,0 +1,12 @@
+[Unit]
+Description=RIOT-CI Jenkins Slave container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker start -a riotci-jenkins
+ExecStop=/usr/bin/docker stop -t 2 riotci-jenkins
+
+[Install]
+WantedBy=default.target
