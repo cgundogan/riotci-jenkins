@@ -1,14 +1,7 @@
 #
-# RIOT Dockerfile
+# RIOT-CI Jenkins Slave Dockerfile
 #
-# the resulting image will contain everything needed to build RIOT for all
-# supported platforms. This is the largest build image, it takes about 1.5 GB in
-# total.
-#
-# Setup: (only needed once per Dockerfile change)
-# 1. install docker, add yourself to docker group, enable docker, relogin
-# 2. # docker build -t riotci-jenkins .
-#
+# based on RIOT-OS docker: https://github.com/RIOT-OS/riotdocker
 
 FROM ubuntu:xenial
 
@@ -88,7 +81,7 @@ RUN \
 RUN git config --system user.name "jenkins" && \
     git config --system user.email "jenkins@riot-ci.inet.haw-hamburg.de"
 
-RUN useradd -m -d /opt/jenkins -u 999 -s /bin/bash -U jenkins && \
+RUN useradd -m -d /opt/jenkins -r -u 999 -s /bin/bash -U jenkins && \
     mkdir -p /opt/jenkins/.ssh && \
     chown jenkins:jenkins /opt/jenkins/.ssh && \
     chmod 755 /opt/jenkins/.ssh && \
