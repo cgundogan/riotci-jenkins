@@ -37,7 +37,7 @@ docker container. If you don't want to autostart the service on boot, ignore the
 line with the `enable` command.
 
 ```
-sudo cp docker-jenkinsslave.service /etc/systemd/system/.
+sudo cp docker-riotci-jenkins.service /etc/systemd/system/.
 sudo systemctl daemon-reload
 sudo systemctl enable docker-riotci-jenkins.service
 sudo systemctl start docker-riotci-jenkins.service
