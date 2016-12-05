@@ -21,7 +21,8 @@ docker create -v "/etc/localtime:/etc/localtime:ro" -p 2222:22 --name riotci-jen
     -v /opt/jenkins/ccache:/opt/jenkins/ccache \
     -v /opt/jenkins/gitcache:/opt/jenkins/gitcache \
     -v /opt/jenkins/workspace:/opt/jenkins/workspace \
-    --tmpfs /tmp --restart "always" -w /opt/jenkins riotci-jenkins
+    --tmpfs /tmp:rw,size=32G,mode=1777 \
+    --restart "always" -w /opt/jenkins riotci-jenkins
 ```
 
 _NOTE_: the parameter `-p 2222:22` forwards port `2222` of the docker host
