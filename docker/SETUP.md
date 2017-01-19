@@ -1,29 +1,34 @@
-## Create directories  
-
-User jenkins within the RIOT-CI docker image has UID 999, so create directories
-as folllows that will be mounted into docker:
-
-```
-sudo mkdir -p /opt/jenkins/gitcache
-sudo mkdir -p /opt/jenkins/ccache
-sudo mkdir -p /opt/jenkins/workspace
-sudo chown -R 999 /opt/jenkins/gitcache
-sudo chown -R 999 /opt/jenkins/ccache
-sudo chown -R 999 /opt/jenkins/workspace
-```
-
 ## Create a Docker Container
 
 First we need to create a docker container for RIOT-CI which suits Jenkins:
 ```
+cd </path/to/repo>/docker
 docker build -t riotci-jenkins .
 docker create -v "/etc/localtime:/etc/localtime:ro" -p 2222:22 --name riotci-jenkins \
-    -v /opt/jenkins/ccache:/opt/jenkins/ccache \
-    -v /opt/jenkins/gitcache:/opt/jenkins/gitcache \
-    -v /opt/jenkins/workspace:/opt/jenkins/workspace \
-    --tmpfs /tmp:rw,size=32G,mode=1777 \
+    --tmpfs /opt/jenkins/ccache:rw,size=10G,mode=1777 \
+    --tmpfs /opt/jenkins/gitcache:rw,size=1G,mode=1777 \
+    --tmpfs /opt/jenkins/workspace:rw,exec,size=4G,mode=1777 \
+    --tmpfs /tmp:rw,size=16G,mode=1777 \
     --restart "always" -w /opt/jenkins riotci-jenkins
 ```
+
+The size of the `tmpfs` partition should be adapted to the hardware resources of
+the Jenkins slave node. Consider the following values:
+
+- `/opt/jenkins/workspace` = (#cpu-cores / 2)G
+- `/opt/jenkins/gitcache` = 1G
+- `/opt/jenkins/ccache` = >10G
+- `/tmp` = amount of RAM
+
+The workspace depends on the number of build lanes, we typically set it to half
+the number of cores (incl. HyperThreading for Intel CPUs), per build lane 1G
+should be sufficient. The ccache size is critical, at least 10G should be
+available, but the more the better.
+The gitcache is not very large at the moment (< 100M), hence, 1G is enough.
+Size of the tmp directory can be as large as the whole RAM installed.
+Remember: tmpfs is lazy allocated, which means that only as much memory is used
+as required. But it also uses swap if RAM is exceeded, so the sum of sizes for
+all directories can be higher than the amount of RAM installed in your system.
 
 _NOTE_: the parameter `-p 2222:22` forwards port `2222` of the docker host
 machine to port `22` (SSH) of the RIOT-CI docker container.
