@@ -89,15 +89,21 @@ ENV MIPS_ELF_ROOT /opt/mips-mti-elf/2016.05-03
 RUN git config --system user.name "jenkins" && \
     git config --system user.email "jenkins@riot-ci.inet.haw-hamburg.de"
 
+# create user, user home, and copy pubkey for ssh login
 RUN useradd -m -d /opt/jenkins -r -u 999 -s /bin/bash -U jenkins && \
     mkdir -p /opt/jenkins/.ssh && \
     chown jenkins:jenkins /opt/jenkins/.ssh && \
-    chmod 755 /opt/jenkins/.ssh && \
-    mkdir -p /var/run/sshd && \
+    chmod 755 /opt/jenkins/.ssh
+
+# mods to support ssh login
+RUN mkdir -p /var/run/sshd && \
     sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
 EXPOSE 22
 
 COPY jenkins.pub /opt/jenkins/.ssh/authorized_keys
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 
 CMD ["/usr/sbin/sshd", "-D"]
